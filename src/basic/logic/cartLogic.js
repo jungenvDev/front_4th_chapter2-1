@@ -7,7 +7,6 @@ import { updateStockInfo } from './stockLogic.js';
 export const calculateCart = () => {
   const cartItems = document.getElementById('cart-items');
   const totalSum = document.querySelector('#cart-total span');
-  const pointDisplay = document.getElementById('loyalty-points');
 
   // DOM에서 필요한 데이터 추출
   const items = Array.from(cartItems.children)
@@ -26,7 +25,7 @@ export const calculateCart = () => {
   const result = calculateDiscounts(items);
 
   // UI 업데이트
-  totalSum.textContent = `총액: ${Math.round(result.totalAmount)}원`;
+  totalSum = `총액: ${Math.round(result.totalAmount)}원`;
   pointDisplay.textContent = `(포인트: ${Math.floor(
     result.totalAmount * 0.001
   )})`;
@@ -43,38 +42,37 @@ export const calculateCart = () => {
 
 //장바구니에 상품 추가
 export const addToCart = () => {
-  try {
-    const cartItems = document.getElementById('cart-items');
-    const selectedItem = document.getElementById('product-select').value;
-    const itemToAdd = productData.find((p) => p.id === selectedItem);
+  const cartItems = document.getElementById('cart-items');
+  const selectedItem = document.getElementById('product-select').value;
+  const itemToAdd = productData.find((p) => p.id === selectedItem);
 
-    if (itemToAdd && itemToAdd.quantity > 0) {
-      let existingItem = document.getElementById(itemToAdd.id);
+  if (itemToAdd && itemToAdd.quantity > 0) {
+    let existingItem = document.getElementById(itemToAdd.id);
 
-      if (existingItem) {
-        // 이미 장바구니에 있는 상품인 경우
-        const newQty =
-          parseInt(
-            existingItem.querySelector('span').textContent.split('x ')[1]
-          ) + 1;
-        if (newQty <= itemToAdd.quantity) {
-          existingItem.querySelector(
-            'span'
-          ).textContent = `${itemToAdd.name} - ${itemToAdd.price}원 x ${newQty}`;
-          itemToAdd.quantity--;
-        } else {
-          alert('재고가 부족합니다.');
-        }
-      } else {
-        // 새로운 상품 추가
-        const newItem = CartItem(itemToAdd);
-        cartItems.appendChild(newItem);
+    if (existingItem) {
+      // 이미 장바구니에 있는 상품인 경우
+      const newQty =
+        parseInt(
+          existingItem.querySelector('span').textContent.split('x ')[1]
+        ) + 1;
+
+      if (newQty <= itemToAdd.quantity) {
+        existingItem.querySelector(
+          'span'
+        ).textContent = `${itemToAdd.name} - ${itemToAdd.price}원 x ${newQty}`;
         itemToAdd.quantity--;
+      } else {
+        alert('재고가 부족합니다.');
       }
-      return true;
+    } else {
+      // 새로운 상품 추가
+      const tempContainer = document.createElement('div');
+      tempContainer.innerHTML = CartItem(itemToAdd);
+      const newItem = tempContainer.firstElementChild;
+      cartItems.appendChild(newItem);
+      itemToAdd.quantity--;
     }
-    return false;
-  } finally {
+
     calculateCart();
   }
 };
